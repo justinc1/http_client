@@ -1,0 +1,3 @@
+
+/http_client.so:              ${MODULE_DIR}/http_client.so
+
