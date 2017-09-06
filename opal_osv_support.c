@@ -57,7 +57,7 @@ static int tcp_connect(const char *host, int port) {
   struct sockaddr_in serv_addr;
   struct hostent *server;
 
-  fprintf(stderr, "HTTP Connecting to %s:%d\n", host, port);
+  LOGD("HTTP Connecting to %s:%d\n", host, port);
   /* Create a socket point */
   sockfd = socket(AF_INET, SOCK_STREAM, 0);
   if (sockfd < 0) {
@@ -67,7 +67,7 @@ static int tcp_connect(const char *host, int port) {
   /* resolve DNS name */
   server = gethostbyname(host);
   if (server == NULL) {
-    fprintf(stderr,"ERROR, no such host %s\n", host);
+    LOGE("ERROR, no such host %s\n", host);
     return -1;
   }
   /* connect to server */
@@ -189,7 +189,7 @@ static int http_send(http_client_t httpc, char* method, char* buf) {
         return -1;
     }
 
-    fprintf(stderr, "HTTP send %s\n", buf2);
+    LOGD("HTTP send %s\n", buf2);
     return tcp_write(httpc.sockfd, buf2, strlen(buf2));
 }
 
@@ -228,9 +228,9 @@ static int http_read(http_client_t httpc, char* buf, size_t sz) {
     For now, we just forget to read data - it was ignored anyway.
     */
 #if 1
-    fprintf(stderr, "HTTP read response...\n");
+    LOGD("HTTP read response...\n");
     ret = tcp_read(httpc.sockfd, buf, sz);
-    fprintf(stderr, "HTTP received %s\n", buf);
+    LOGD("HTTP received: %d B\n%s\n", strlen(buf), buf);
 #endif
     // TODO check buf
     return 200;
@@ -279,11 +279,11 @@ int opal_osvrest_run(char *host, int port, char **argv) {
     /* OPAL_OUTPUT_VERBOSE((1, orte_plm_base_framework.framework_output,
                          "%s plm:osv_rest: host %s:%d, cmd %s)",
                          ORTE_NAME_PRINT(ORTE_PROC_MY_NAME), host, port, var)); */
-    fprintf(stderr, "TTRT osv_rest_run host %s:%d, cmd %s", host, port, var);
+    LOGD("TTRT osv_rest_run host %s:%d, cmd %s", host, port, var);
     /* urlencode data part */
     char *var_enc = url_encode(html5, (unsigned char*)var);
-    fprintf(stderr, "HTTP run var     %s\n", var);
-    fprintf(stderr, "HTTP run var_enc %s\n", var_enc);
+    LOGD("HTTP run var     %s\n", var);
+    LOGD("HTTP run var_enc %s\n", var_enc);
     /* build full URL */
     size_t var2_maxlen = strlen(var) + 100;
     char *var2 = (char *)malloc(var2_maxlen);

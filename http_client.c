@@ -35,10 +35,10 @@ int main(int argc, char *argv[])
     char buf[4096];
     http_client_t httpc = http_connect(host, port);
     for (ii=0; ii<rep; ii++) {
-        printf("/* REP %d/%d ***********************************/\n", ii, rep);
+        LOGI("/* REP %d/%d ***********************************/\n", ii, rep);
         http_get(httpc, url);
         http_read(httpc, buf, sizeof(buf));
-        printf("/* REP %d/%d done ***********************************/\n", ii, rep);
+        LOGI("/* REP %d/%d done ***********************************/\n", ii, rep);
     }
     http_close(&httpc);
     
