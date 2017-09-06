@@ -85,7 +85,7 @@ static int tcp_connect(const char *host, int port) {
 }
 
 static http_client_t http_connect(const char *host, int port) {
-  http_client_t httpc = {NULL, 0, -1};
+  http_client_t httpc = {NULL, 0, -1, HTTP_VERSION_10};
   httpc.sockfd = tcp_connect(host, port);
   if (httpc.sockfd < 0) {
       return httpc;

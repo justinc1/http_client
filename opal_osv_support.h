@@ -3,10 +3,14 @@
 
 //#include "opal_config.h"
 
+#define HTTP_VERSION_10 10
+#define HTTP_VERSION_11 11
+
 struct http_client_t {
     char *host;
     int port;
     int sockfd;
+    int version; /* HTTP_VERSION_10 or HTTP_VERSION_11 */
 };
 typedef struct http_client_t http_client_t;
 
