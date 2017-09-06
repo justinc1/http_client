@@ -262,6 +262,7 @@ int opal_osvrest_run(char *host, int port, char **argv) {
     will not be "found" on PATH;
     */
     char env_path[] = "/env/PATH?val=%2Fusr%2Fbin%3A%2Fusr%2Flib";
+    char os_memory_free[] = "/os/memory/free";
 
     /* Assemble command to run on OSv VM. */
     char* var;
@@ -311,6 +312,8 @@ int opal_osvrest_run(char *host, int port, char **argv) {
     http_read(httpc, buf, sizeof(buf));
     http_close(&httpc);
 
+// mogoce pa samo server VM zmanjka memroija pri tem testu..
+#if 1
     httpc = http_connect(host, port);
     if (httpc.sockfd < 0) {
         goto DONE;
@@ -318,6 +321,15 @@ int opal_osvrest_run(char *host, int port, char **argv) {
     http_put(httpc, var2);
     http_read(httpc, buf, sizeof(buf));
     ret = 0;
+#else
+    httpc = http_connect(host, port);
+    if (httpc.sockfd < 0) {
+        goto DONE;
+    }
+    http_get(httpc, os_memory_free);
+    http_read(httpc, buf, sizeof(buf));
+    http_close(&httpc);
+#endif
 
 DONE:
     http_close(&httpc);
