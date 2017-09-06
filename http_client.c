@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
     http_loglevel = loglevel;
    
     char buf[4096];
-    http_client_t httpc = http_connect(host, port);
+    http_client_t httpc = http_connect(host, port, HTTP_VERSION_11);
     for (ii=0; ii<rep; ii++) {
         LOGI("/* REP %d/%d ***********************************/\n", ii, rep);
         http_get(httpc, url);

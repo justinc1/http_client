@@ -84,7 +84,7 @@ static int tcp_connect(const char *host, int port) {
   return sockfd;
 }
 
-static http_client_t http_connect(const char *host, int port) {
+static http_client_t http_connect(const char *host, int port, int http_version) {
   http_client_t httpc = {NULL, 0, -1, HTTP_VERSION_10};
   httpc.sockfd = tcp_connect(host, port);
   if (httpc.sockfd < 0) {
@@ -92,8 +92,9 @@ static http_client_t http_connect(const char *host, int port) {
   }
   httpc.host = strdup(host); // free
   httpc.port = port;
+  assert(http_version == HTTP_VERSION_10 || http_version == HTTP_VERSION_11);
+  httpc.version = http_version;
   return httpc;
-
 }
 
 static int tcp_close(int sockfd) {
@@ -166,11 +167,18 @@ static int http_send(http_client_t httpc, const char* method, const char* url) {
     int pos = 0;
 
     /* POST/PUT data */
-    /*
-    HTTP/1.1 could be used to reuse existing tcp connection.
-    But OSv REST server is 1.0 only anyway.
-    */
-    pos += snprintf(buf2+pos, sizeof(buf2)-pos, "%s %s HTTP/1.0\r\n", method, url);
+    const char* http_ver;
+    switch (httpc.version) {
+        case HTTP_VERSION_11:
+            http_ver = "HTTP/1.1";
+            break;
+        case HTTP_VERSION_10:
+        default:
+            http_ver = "HTTP/1.0";
+            break;
+    }
+    // "GET /basic_status HTTP/1.1"
+    pos += snprintf(buf2+pos, sizeof(buf2)-pos, "%s %s %s\r\n", method, url, http_ver);
     if (pos >= sizeof(buf2)) {
         return -1;
     }
@@ -299,7 +307,7 @@ int opal_osvrest_run(const char *host, int port, char **argv) {
     int max_connect_retries;
     max_connect_retries = 3;
     while (max_connect_retries-- > 0) {
-        httpc = http_connect(host, port);
+        httpc = http_connect(host, port, HTTP_VERSION_10);
         if (httpc.sockfd < 0) {
             sleep(1);
             continue;
@@ -311,7 +319,7 @@ int opal_osvrest_run(const char *host, int port, char **argv) {
         break;
     }
 
-    httpc = http_connect(host, port);
+    httpc = http_connect(host, port, HTTP_VERSION_10);
     if (httpc.sockfd < 0) {
         goto DONE;
     }
@@ -321,7 +329,7 @@ int opal_osvrest_run(const char *host, int port, char **argv) {
 
 // mogoce pa samo server VM zmanjka memroija pri tem testu..
 #if 1
-    httpc = http_connect(host, port);
+    httpc = http_connect(host, port, HTTP_VERSION_10);
     if (httpc.sockfd < 0) {
         goto DONE;
     }
@@ -329,7 +337,7 @@ int opal_osvrest_run(const char *host, int port, char **argv) {
     http_read(httpc, buf, sizeof(buf));
     ret = 0;
 #else
-    httpc = http_connect(host, port);
+    httpc = http_connect(host, port, HTTP_VERSION_10);
     if (httpc.sockfd < 0) {
         goto DONE;
     }
