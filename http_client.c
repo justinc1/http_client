@@ -11,7 +11,7 @@
 
 int main(int argc, char *argv[])
 {
-    char* host="127.0.0.1";
+    const char* host="127.0.0.1";
     int ii, rep = 1;
     int port = 8000;
     char def_url[] = "/index.html";
