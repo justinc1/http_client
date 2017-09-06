@@ -58,12 +58,20 @@ int main(int argc, char *argv[])
         gettimeofday(&tt1b, NULL);
         http_loglevel = loglevel;
 #endif
+    int nreq_10 = rep / 10;
+    if (nreq_10 <= 0) {
+        nreq_10 = nreq_10 + 100; // never/only-once switch to debug print
+    }
 
     for (ii=0; ii<rep; ii++) {
+        if ((ii % nreq_10) == 0) {
+            http_loglevel = 3;
+        }
         LOGI("/* REP %d/%d ***********************************/\n", ii, rep);
         http_get(httpc, url);
         http_read(httpc, buf, sizeof(buf));
         LOGI("/* REP %d/%d done ***********************************/\n", ii, rep);
+        http_loglevel = loglevel;
     }
     gettimeofday(&tt2, NULL);
     http_close(&httpc);
@@ -73,8 +81,12 @@ int main(int argc, char *argv[])
     dur_12 = time_delta(tt1, tt2);
     rate_03 = rep / dur_03;
     rate_12 = rep / dur_12;
-    
     printf("Stat: nreq=%d, %0.0f %0.0f [req/s], time interval %0.3f %0.3f [sec]\n", rep, rate_03, rate_12, dur_03, dur_12);
+#if DBG_WARMUP
+    dur_1b2 = time_delta(tt1b, tt2);
+    rate_1b2 = rep / dur_1b2;
+    printf("Stat: nreq=%d, %0.0f %0.0f [req/s], time interval %0.3f %0.3f [sec] warm-up excluded\n", rep, rate_03, rate_1b2, dur_03, dur_1b2);
+#endif
     printf("Done\n");
     return 0;
 }
