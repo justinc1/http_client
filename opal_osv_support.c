@@ -14,6 +14,13 @@
 #include <assert.h>
 #include <string.h>
 
+int http_loglevel = 1;
+
+#define LOGD(fmt, ...) { if (http_loglevel >= 3) fprintf(stderr, "DEBUG " fmt, ##__VA_ARGS__); }
+#define LOGI(fmt, ...) { if (http_loglevel >= 2) fprintf(stderr, "INFO  " fmt, ##__VA_ARGS__); }
+#define LOGE(fmt, ...) { if (http_loglevel >= 1) fprintf(stderr, "ERROR " fmt, ##__VA_ARGS__); }
+#define LOG (fmt, ...) { if (http_loglevel >= 0) fprintf(stderr, "E---- " fmt, ##__VA_ARGS__); }
+
 /* 
  * Return 1 if inside OSv, 0 otherwise.
  * */

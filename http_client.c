@@ -16,8 +16,9 @@ int main(int argc, char *argv[])
     int port = 8000;
     char def_url[] = "/index.html";
     char *url = def_url;
+    int loglevel = 3; // 0-no log, 1-error, 2-info, 3-debug
 
-    printf("Usage: %s [rep=%d] [host=%s] [port=%d] [url=%s]\n", argv[0], rep, host, port, url);
+    printf("Usage: %s [rep=%d] [host=%s] [port=%d] [url=%s] [loglevel=%d]\n", argv[0], rep, host, port, url, loglevel);
     if(argc >= 2)
         rep = atoi(argv[1]);
     if(argc >= 3)
@@ -26,7 +27,10 @@ int main(int argc, char *argv[])
         port = atoi(argv[3]);
     if(argc >= 5)
         url = (argv[4]);
-    printf("Param: host=%s port=%d url=%s\n", host, port, url);
+    if(argc >= 6)
+        loglevel = atoi(argv[5]);
+    printf("Param: host=%s port=%d url=%s loglevel=%d\n", host, port, url, loglevel);
+    http_loglevel = loglevel;
    
     char buf[4096];
     http_client_t httpc = http_connect(host, port);
