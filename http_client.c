@@ -24,6 +24,11 @@ int main(int argc, char *argv[])
     struct timeval tt0, tt1, tt2, tt3;
     double dur_03, rate_03; // include connect, close
     double dur_12, rate_12; // exclude connect, close
+#define DBG_WARMUP 1
+#if DBG_WARMUP
+    struct timeval tt1b;
+    double dur_1b2, rate_1b2;
+#endif
 
     printf("Usage: %s [rep=%d] [host=%s] [port=%d] [url=%s] [loglevel=%d]\n", argv[0], rep, host, port, url, loglevel);
     if(argc >= 2)
@@ -43,6 +48,17 @@ int main(int argc, char *argv[])
     gettimeofday(&tt0, NULL);
     http_client_t httpc = http_connect(host, port, HTTP_VERSION_11);
     gettimeofday(&tt1, NULL);
+#if DBG_WARMUP
+        http_loglevel = 3;
+        // warm up connection
+        LOGI("/* REP warm-up ***********************************/\n");
+        http_get(httpc, url);
+        http_read(httpc, buf, sizeof(buf));
+        LOGI("/* REP warm-up done ***********************************/\n");
+        gettimeofday(&tt1b, NULL);
+        http_loglevel = loglevel;
+#endif
+
     for (ii=0; ii<rep; ii++) {
         LOGI("/* REP %d/%d ***********************************/\n", ii, rep);
         http_get(httpc, url);
