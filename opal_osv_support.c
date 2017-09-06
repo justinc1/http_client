@@ -111,7 +111,7 @@ static int http_close(http_client_t *httpc) {
     }
 }
 
-static int tcp_write(int sockfd, char* buf, size_t sz) {
+static int tcp_write(int sockfd, const char* buf, size_t sz) {
     size_t sz2;
     sz2 = write(sockfd, buf, sz);
     if(sz2 < 0) {
@@ -141,7 +141,7 @@ void url_encoder_rfc_tables_init() {
     }
 }
 
-char *url_encode(char *table, unsigned char *s) {
+char *url_encode(const char *table, const unsigned char *s) {
     url_encoder_rfc_tables_init();
     char *enc0, *enc;
     enc0 = (char*)malloc(strlen((char*)s)*3);
@@ -161,7 +161,7 @@ char *url_encode(char *table, unsigned char *s) {
     return enc0;
 }
 
-static int http_send(http_client_t httpc, char* method, char* buf) {
+static int http_send(http_client_t httpc, const char* method, const char* url) {
     char buf2[1024*10];
     int pos = 0;
 
@@ -170,7 +170,7 @@ static int http_send(http_client_t httpc, char* method, char* buf) {
     HTTP/1.1 could be used to reuse existing tcp connection.
     But OSv REST server is 1.0 only anyway.
     */
-    pos += snprintf(buf2+pos, sizeof(buf2)-pos, "%s %s HTTP/1.0\r\n", method, buf);
+    pos += snprintf(buf2+pos, sizeof(buf2)-pos, "%s %s HTTP/1.0\r\n", method, url);
     if (pos >= sizeof(buf2)) {
         return -1;
     }
@@ -193,16 +193,16 @@ static int http_send(http_client_t httpc, char* method, char* buf) {
     return tcp_write(httpc.sockfd, buf2, strlen(buf2));
 }
 
-static int http_get(http_client_t httpc, char* buf) {
-    return http_send(httpc, "GET", buf);
+static int http_get(http_client_t httpc, const char* url) {
+    return http_send(httpc, "GET", url);
 }
 
-static int http_put(http_client_t httpc, char* buf) {
-    return http_send(httpc, "PUT", buf);
+static int http_put(http_client_t httpc, const char* url) {
+    return http_send(httpc, "PUT", url);
 }
 
-static int http_post(http_client_t httpc, char* buf) {
-    return http_send(httpc, "POST", buf);
+static int http_post(http_client_t httpc, const char* url) {
+    return http_send(httpc, "POST", url);
 }
 
 static int tcp_read(int sockfd, char* buf, size_t sz) {
@@ -262,7 +262,7 @@ It does:
 POST /env/PATH?val=%2Fusr%2Fbin%3A%2Fusr%2Flib
 PUT /app/?command=...
 */
-int opal_osvrest_run(char *host, int port, char **argv) {
+int opal_osvrest_run(const char *host, int port, char **argv) {
     int ret = -1;
     /*
     Setup env PATH. It should not be empty, or even /usr/lib/orted.so (with abs path)
