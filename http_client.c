@@ -14,32 +14,29 @@ int main(int argc, char *argv[])
     char* host="127.0.0.1";
     int ii, rep = 1;
     int port = 8000;
-    printf("Usage: %s [rep=%d] [host=%s] [port=%d]\n", argv[0], rep, host, port);
+    char def_url[] = "/index.html";
+    char *url = def_url;
+
+    printf("Usage: %s [rep=%d] [host=%s] [port=%d] [url=%s]\n", argv[0], rep, host, port, url);
     if(argc >= 2)
         rep = atoi(argv[1]);
     if(argc >= 3)
         host = argv[2];
     if(argc >= 4)
         port = atoi(argv[3]);
-    printf("Param: host=%s port=%d\n", host, port);
+    if(argc >= 5)
+        url = (argv[4]);
+    printf("Param: host=%s port=%d url=%s\n", host, port, url);
    
-    char *argv3[] = {"/zpool.so", "list", NULL};
-    char **argv2 = argv3;
-    if(argc >= 5) {
-        argv2 = (char**) malloc(argc + 1);
-        char **prm;
-        int pos = 0;
-        for (pos = 0, prm = &argv[4]; prm != NULL && *prm != NULL; prm++, pos++) {
-            argv2[pos] = *prm;
-        }
-        argv2[pos] = NULL;        
-    }
+    char buf[4096];
+    http_client_t httpc = http_connect(host, port);
     for (ii=0; ii<rep; ii++) {
         printf("/* REP %d/%d ***********************************/\n", ii, rep);
-        opal_osvrest_run(host, port, argv2); // char **argv
+        http_get(httpc, url);
+        http_read(httpc, buf, sizeof(buf));
         printf("/* REP %d/%d done ***********************************/\n", ii, rep);
-        usleep(20*1000);
     }
+    http_close(&httpc);
     
     printf("Done\n");
     return 0;
